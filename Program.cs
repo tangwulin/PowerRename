@@ -1,47 +1,97 @@
-﻿using System;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Collections.Generic;
-using OfficeOpenXml;
+using ConsoleApp3;
+using MiniExcelLibs;
 
-namespace ExcelFileRenamer;
-
-class Program
+internal class Program
 {
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
-        var inputDirectory = Path.Combine(Directory.GetCurrentDirectory(), "input");
-        var outputDirectory = Path.Combine(Directory.GetCurrentDirectory(), "output");
+        string? _path;
+        string? _inputFolder;
+        string? _outputFolder;
 
-        // 读取Excel文件
-        var excelFile = new FileInfo(Path.Combine(inputDirectory, "filelist.xlsx"));
-        using var package = new ExcelPackage(excelFile);
-        var worksheet = package.Workbook.Worksheets[0];
-
-        // 获取文件列表
-        var files = Directory.GetFiles(inputDirectory);
-
-        // 遍历Excel表格中的行
-        for (var row = 2; row <= worksheet.Dimension.End.Row; row++)
+        if (System.Diagnostics.Debugger.IsAttached)
         {
-            var fileNameColumn = worksheet.Cells[row, 1].Value?.ToString();
-            var newFileNameColumn = worksheet.Cells[row, 2].Value?.ToString();
+            // 程序以 debug 模式启动
+#if LINQPAD
+			var currentDirectory = Path.GetDirectoryName(Util.CurrentQueryPath);
+#else
+            var currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+#endif
+            Console.WriteLine("注意：xls/xlsx文件的格式为源文件的列名为“OldFilename”，目标文件的列名为“NewFilename”。");
+            Console.WriteLine(
+                $"检测到正在以Debug模式运行，将从运行目录:{currentDirectory}下的“filelist.xlsx”文件读入对应关系，从“input”目录读入源文件，从“output”目录输出目标文件。");
 
-            if (!string.IsNullOrEmpty(fileNameColumn) && !string.IsNullOrEmpty(newFileNameColumn))
+            _path = Path.Combine(currentDirectory, "filelist.xlsx");
+
+            _inputFolder = Path.Combine(currentDirectory, "input");
+            _outputFolder = Path.Combine(currentDirectory, "output");
+
+            if (!Directory.Exists(_outputFolder)) Directory.CreateDirectory(_outputFolder);
+
+            if (!File.Exists(_path))
             {
-                // 搜索文件名并重命名
-                var matchingFile = files.FirstOrDefault(f => Path.GetFileName(f) == fileNameColumn);
-                if (matchingFile != null)
-                {
-                    var newFileName = newFileNameColumn;
-                    var newFilePath = Path.Combine(outputDirectory, newFileName);
-                    File.Move(matchingFile, newFilePath);
-                    Console.WriteLine($"Renamed {matchingFile} to {newFilePath}");
-                }
-                else
-                {
-                    Console.WriteLine($"Could not find file {fileNameColumn}");
-                }
+                Console.WriteLine("程序目录下不存在“filelist.xlsx”，请检查！");
+                return;
+            }
+
+            if (!Directory.Exists(_inputFolder))
+            {
+                Console.WriteLine("程序目录下不存在“input”文件夹，请检查！");
+                return;
+            }
+        }
+        else
+        {
+            // 程序以 release 模式启动
+            if (args.Length < 3)
+            {
+                Console.WriteLine("Usage: <flielist.xlsx> <input folder> <output folder>");
+                Console.WriteLine("e.g: OldFilename NewFilename");
+                Console.WriteLine("注意：xls/xlsx文件的格式为源文件的列名为“OldFilename”，目标文件的列名为“NewFilename”。");
+                return;
+            }
+            _path = string.Empty;
+            _inputFolder = string.Empty;
+            _outputFolder = string.Empty;
+        }
+
+
+        // var stopwatch = new Stopwatch();
+        // stopwatch.Start();
+        var rows = MiniExcel.Query<Item>(_path);
+
+        foreach (var VARIABLE in rows)
+        {
+            var files = Directory.GetFiles(_inputFolder, VARIABLE.OldFilename + ".*");
+            switch (files.Length)
+            {
+                case 1:
+                    changeFileName(files[0], Path.Combine(_outputFolder, VARIABLE.NewFilename + Path.GetExtension(files[0])));
+                    Console.WriteLine($"{Path.GetFileName(files[0])} has been changed to {Path.GetFileName(VARIABLE.NewFilename + Path.GetExtension(files[0]))} successfully.");
+                    break;
+                case 0:
+                    Console.WriteLine($"找不到这个名为{VARIABLE.OldFilename}的文件");
+                    break;
+                default:
+                    Console.WriteLine($"似乎有重复的文件名：{files}");
+                    break;
+            }
+        }
+        // stopwatch.Stop();
+        // Console.WriteLine("Method execution time: " + stopwatch.ElapsedMilliseconds + " ms");
+
+        static void changeFileName(string oldFile, string newFile)
+        {
+            try
+            {
+                File.Copy(oldFile, newFile, true);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
             }
         }
     }

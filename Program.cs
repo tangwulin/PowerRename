@@ -57,9 +57,10 @@ internal class Program
             _outputFolder = string.Empty;
         }
 
+        // 计时器
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
 
-        // var stopwatch = new Stopwatch();
-        // stopwatch.Start();
         var rows = MiniExcel.Query<Item>(_path);
 
         foreach (var VARIABLE in rows)
@@ -68,8 +69,8 @@ internal class Program
             switch (files.Length)
             {
                 case 1:
-                    changeFileName(files[0], Path.Combine(_outputFolder, VARIABLE.NewFilename + Path.GetExtension(files[0])));
-                    Console.WriteLine($"{Path.GetFileName(files[0])} has been changed to {Path.GetFileName(VARIABLE.NewFilename + Path.GetExtension(files[0]))} successfully.");
+                    ChangeFileName(files[0], Path.Combine(_outputFolder, VARIABLE.NewFilename + Path.GetExtension(files[0])));
+                    Console.WriteLine($"成功将{Path.GetFileName(files[0])}重命名为{Path.GetFileName(VARIABLE.NewFilename + Path.GetExtension(files[0]))}。");
                     break;
                 case 0:
                     Console.WriteLine($"找不到这个名为{VARIABLE.OldFilename}的文件");
@@ -79,10 +80,16 @@ internal class Program
                     break;
             }
         }
-        // stopwatch.Stop();
-        // Console.WriteLine("Method execution time: " + stopwatch.ElapsedMilliseconds + " ms");
 
-        static void changeFileName(string oldFile, string newFile)
+        stopwatch.Stop();
+        Console.WriteLine($"消耗的时间：{stopwatch.ElapsedMilliseconds} 毫秒");
+
+        if (System.Diagnostics.Debugger.IsAttached)
+        {
+            Console.ReadKey(); // 卡着看内存用的
+        }
+
+        static void ChangeFileName(string oldFile, string newFile)
         {
             try
             {

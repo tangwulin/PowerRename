@@ -45,16 +45,39 @@ internal class Program
         else
         {
             // 程序以 release 模式启动
-            if (args.Length < 3)
+            if (args.Length < 2)
             {
                 Console.WriteLine("Usage: <flielist.xlsx> <input folder> <output folder>");
                 Console.WriteLine("e.g: OldFilename NewFilename");
                 Console.WriteLine("注意：xls/xlsx文件的格式为源文件的列名为“OldFilename”，目标文件的列名为“NewFilename”。");
                 return;
             }
-            _path = string.Empty;
-            _inputFolder = string.Empty;
-            _outputFolder = string.Empty;
+            _path = args[0];
+            _inputFolder = args[1];
+            _outputFolder = args[2];
+
+            if (!File.Exists(_path))
+            {
+                Console.WriteLine("请确认该xls/xlsx文件是否存在！");
+                return;
+            }
+
+            if (!Directory.Exists(_inputFolder))
+            {
+                Console.WriteLine("请确认源文件夹是否存在！");
+                return;
+            }
+
+            if (!Directory.Exists(_outputFolder))
+            {
+                if (args.Length == 2)
+                {
+                    _outputFolder = Path.Combine(Directory.GetParent(_inputFolder)!.FullName, "output");// 别说什么null，真null不可能跑到这里的
+                }
+                Directory.CreateDirectory(_outputFolder);
+            }
+           
+            
         }
 
         // 计时器

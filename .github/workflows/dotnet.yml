@@ -37,7 +37,7 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Upload To Artifact
-    - uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3
       with:
         name: PowerRename
         path: /home/runner/work/PowerRename/PowerRename/bin/Release/net6.0/

@@ -20,15 +20,24 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
+    - name: Install dependencies
+      run: dotnet add package MiniExcel --version 1.30.2
     - name: Restore dependencies
       run: dotnet restore
     - name: Build win-x86
       run: dotnet publish -r win-x86 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
     - name: Build win-x64
       run: dotnet publish -r win-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
-    - name: Build linux-x86
-      run: dotnet publish -r linux-x86 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
+    - name: Build linux-arm
+      run: dotnet publish -r linux-arm -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
+    - name: Build linux-arm64
+      run: dotnet publish -r linux-arm64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
     - name: Build linux-x64
       run: dotnet publish -r linux-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Upload To Artifact
+    - uses: actions/upload-artifact@v3
+      with:
+        name: PowerRename
+        path: /home/runner/work/PowerRename/PowerRename/bin/Release/net6.0/

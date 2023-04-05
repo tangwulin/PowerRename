@@ -9,11 +9,12 @@ echo "Output directory: $OUTPUT_DIR"
 
 # Build
 dotnet restore
+
 for TARGET in ${TARGETS[@]}; do
-  echo "Build for $target"
+  echo "Build for $TARGET"
   TARGET_OUTPUT_DIR=$OUTPUT_DIR/$TARGET
   mkdir $TARGET_OUTPUT_DIR
-  dotnet publish -r $TARGET -o $xTARGET_OUTPUT_DIR -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
+  dotnet publish -r $TARGET -o $TARGET_OUTPUT_DIR -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
 done
 
 

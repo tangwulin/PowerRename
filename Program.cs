@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.IO;
 using ConsoleApp3;
 using MiniExcelLibs;
 
@@ -9,7 +8,7 @@ internal class Program
     {
         string? _path;
         string? _inputFolder;
-        string? _outputFolder;
+        var _outputFolder = string.Empty;
 
         if (System.Diagnostics.Debugger.IsAttached)
         {
@@ -54,7 +53,7 @@ internal class Program
             }
             _path = args[0];
             _inputFolder = args[1];
-            _outputFolder = args[2];
+            if (args.Length > 2) _outputFolder = args[2];
 
             if (!File.Exists(_path))
             {
@@ -76,8 +75,8 @@ internal class Program
                 }
                 Directory.CreateDirectory(_outputFolder);
             }
-           
-            
+
+
         }
 
         // 计时器
@@ -93,19 +92,19 @@ internal class Program
             {
                 case 1:
                     ChangeFileName(files[0], Path.Combine(_outputFolder, VARIABLE.NewFilename + Path.GetExtension(files[0])));
-                    Console.WriteLine($"成功将{Path.GetFileName(files[0])}重命名为{Path.GetFileName(VARIABLE.NewFilename + Path.GetExtension(files[0]))}。");
+                    Console.WriteLine($"成功将“{Path.GetFileName(files[0])}”重命名为“{Path.GetFileName(VARIABLE.NewFilename + Path.GetExtension(files[0]))}”。");
                     break;
                 case 0:
-                    Console.WriteLine($"找不到这个名为{VARIABLE.OldFilename}的文件");
+                    Console.WriteLine($"找不到这个名为“{VARIABLE.OldFilename}”的文件");
                     break;
                 default:
-                    Console.WriteLine($"似乎有重复的文件名：{files}");
+                    Console.WriteLine($"似乎有重复的文件名：“{files}”");
                     break;
             }
         }
 
         stopwatch.Stop();
-        Console.WriteLine($"消耗的时间：{stopwatch.ElapsedMilliseconds} 毫秒");
+        Console.WriteLine($"处理时间：{stopwatch.ElapsedMilliseconds} 毫秒");
 
         if (System.Diagnostics.Debugger.IsAttached)
         {

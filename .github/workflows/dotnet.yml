@@ -34,42 +34,16 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
-    - name: Install dependencies
-      run: dotnet add package MiniExcel --version 1.30.2
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build win-x86
-      run: dotnet publish -r win-x86 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained 
-    - name: Build win-x64
-      run: dotnet publish -r win-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
-    - name: Build linux-arm
-      run: dotnet publish -r linux-arm -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
-    - name: Build linux-arm64
-      run: dotnet publish -r linux-arm64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
-    - name: Build linux-x64
-      run: dotnet publish -r linux-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+    - name: Build
+      run: ./scripts/build.sh
     - name: Upload To Artifact
       uses: actions/upload-artifact@v3
       with:
         name: PowerRename
-        path: |
-          PowerRename/bin/Release/net6.0/win-x86/publish
-          PowerRename/bin/Release/net6.0/win-x64/publish
-          PowerRename/bin/Release/net6.0/linux-arm/publish
-          PowerRename/bin/Release/net6.0/linux-arm64/publish
-          PowerRename/bin/Release/net6.0/linux-x64/publish
-    - name: Preprocess
-      run: cp PowerRename/bin/Release/net6.0/win-x86/publish/PowerRename.exe PowerRename/bin/Release/PowerRename_x86.exe
-           cp PowerRename/bin/Release/net6.0/win-x64/publish/PowerRename.exe PowerRename/bin/Release/PowerRename_x64.exe
-           cp PowerRename/bin/Release/net6.0/linux-arm/publish/PowerRename PowerRename/bin/Release/PowerRename_arm
-           cp PowerRename/bin/Release/net6.0/linux-arm64/publish/PowerRename PowerRename/bin/Release/PowerRename_arm64
-           cp PowerRename/bin/Release/net6.0/linux-x64/publish/PowerRename PowerRename/bin/Release/PowerRename_x64
+        path: ./outputs/
     - name: Upload To Release
       uses: svenstaro/upload-release-action@2.5.0
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: target/release/${{ matrix.artifact_name }}
-        asset_name: ${{ matrix.asset_name }}
-        tag: ${{ github.ref }}
+        file: ./outputs/
+        release_name: ci
+        asset_name: outputs.zip

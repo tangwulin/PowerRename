@@ -31,10 +31,10 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ./outputs/win-x86/PowerRename.exe
-          ./outputs/win-x64/PowerRename.exe
-          ./outputs/linux-x64/PowerRename
-          ./outputs/linux-arm64/PowerRename
-          ./outputs/linux-arm/PowerRename
+          ./outputs/win-x86/PowerRename-win-x86.exe
+          ./outputs/win-x64/PowerRename-win-x64.exe
+          ./outputs/linux-x64/PowerRename-linux-x64
+          ./outputs/linux-arm64/PowerRename-linux-arm64
+          ./outputs/linux-arm/PowerRename-linux-arm
         name: ci
         tag_name: "refs/tags/ci_release"

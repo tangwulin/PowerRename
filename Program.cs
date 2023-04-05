@@ -48,7 +48,7 @@ internal class Program
             {
                 Console.WriteLine("Usage: <flielist.xlsx> <input folder> <output folder>");
                 Console.WriteLine("e.g: OldFilename NewFilename");
-                Console.WriteLine("注意：xls/xlsx文件的格式为源文件的列名为“OldFilename”，目标文件的列名为“NewFilename”。");
+                Console.WriteLine("注意：xls/xlsx文件的格式为源文件的列名为“OldFilename”，目标文件的列名为“NewFilename”");
                 return;
             }
             _path = args[0];

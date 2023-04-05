@@ -40,4 +40,9 @@ jobs:
       with:
         name: PowerRename
         path: ./outputs/
-
+    - name: Upload To Release
+      uses: svenstaro/upload-release-action@2.5.0
+      with:
+        file: ./outputs/
+        release_name: ci
+        asset_name: outputs.zip

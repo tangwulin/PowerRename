@@ -13,6 +13,19 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - artifact_name: PowerRename_x86.exe
+            asset_name: PowerRename-windows-IA32
+          - artifact_name: PowerRename_x64.exe
+            asset_name: PowerRename-windows-amd64
+          - artifact_name: PowerRename_arm
+            asset_name: PowerRename-linux-arm 
+          - artifact_name: PowerRename_arm64
+            asset_name: PowerRename-linux-arm64 
+          - artifact_name: PowerRename_x64
+            asset_name: PowerRename-linux-amd64
 
     steps:
     - uses: actions/checkout@v3
@@ -41,8 +54,21 @@ jobs:
       with:
         name: PowerRename
         path: |
-          $GITHUB_WORKSPACE/PowerRename/bin/Release/net6.0/win-x86/publish
-          $GITHUB_WORKSPACE/PowerRename/bin/Release/net6.0/win-x64/publish
-          $GITHUB_WORKSPACE/PowerRename/bin/Release/net6.0/linux-arm/publish
-          $GITHUB_WORKSPACE/PowerRename/bin/Release/net6.0/linux-arm64/publish
-          $GITHUB_WORKSPACE/PowerRename/bin/Release/net6.0/linux-x64/publish
+          PowerRename/bin/Release/net6.0/win-x86/publish
+          PowerRename/bin/Release/net6.0/win-x64/publish
+          PowerRename/bin/Release/net6.0/linux-arm/publish
+          PowerRename/bin/Release/net6.0/linux-arm64/publish
+          PowerRename/bin/Release/net6.0/linux-x64/publish
+    - name: Preprocess
+      run: cp PowerRename/bin/Release/net6.0/win-x86/publish/PowerRename.exe PowerRename/bin/Release/PowerRename_x86.exe
+           cp PowerRename/bin/Release/net6.0/win-x64/publish/PowerRename.exe PowerRename/bin/Release/PowerRename_x64.exe
+           cp PowerRename/bin/Release/net6.0/linux-arm/publish/PowerRename PowerRename/bin/Release/PowerRename_arm
+           cp PowerRename/bin/Release/net6.0/linux-arm64/publish/PowerRename PowerRename/bin/Release/PowerRename_arm64
+           cp PowerRename/bin/Release/net6.0/linux-x64/publish/PowerRename PowerRename/bin/Release/PowerRename_x64
+    - name: Upload To Release
+      uses: svenstaro/upload-release-action@2.5.0
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: target/release/${{ matrix.artifact_name }}
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}

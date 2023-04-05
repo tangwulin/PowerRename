@@ -15,7 +15,14 @@ for TARGET in ${TARGETS[@]}; do
   TARGET_OUTPUT_DIR=$OUTPUT_DIR/$TARGET
   mkdir $TARGET_OUTPUT_DIR
   dotnet publish -r $TARGET -o $TARGET_OUTPUT_DIR -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true --self-contained
-  rename "s/PowerRename/PowerRename-$TARGET/" $TARGET_OUTPUT_DIR/* 
+
+  if [[ $TARGET == win* ]];
+  then
+    POSTFIX=".exe"
+  else
+    POSTFIX=""
+  fi
+  mv $TARGET_OUTPUT_DIR/* $TARGET_OUTPUT_DIR/PowerRename-$TARGET$POSTFIX
 done
 
 
